@@ -18,6 +18,7 @@ contract Lottery {
         _;
     }
     receive() external payable canParticipate{
+        require(msg.value==1 ether);
         participant.push(payable(msg.sender));
     }
 
@@ -25,7 +26,7 @@ contract Lottery {
         return (name, owner);
     }
 
-    function participate() public canParticipate view returns(address payable[] memory){
+    function getParticipate() public checkOwner view returns(address payable[] memory){
         return participant;
     }
 
