@@ -21,11 +21,6 @@ contract CrowdFunding {
     uint public totalFunders;
     address public owner;
 
-    // to receive fund
-    uint public requestAmount;
-    address public AmountReceiver;
-    uint public votes;
-    address[] public funderVotes;
     
     constructor (uint _goal, uint _time) {
         owner = msg.sender;
@@ -106,6 +101,16 @@ contract CrowdFunding {
         request.votes[msg.sender] = true;
         request.noOfVoters++;
         
+    }
+
+    function transferFund(uint _requestNum) checkOwner public payable{
+        // require(allRequest[_requestNum].noOfVoters > totalFunders/2, "Min 50% votes are required");
+        VotingRequests storage request = allRequest[_requestNum];
+        require(request.noOfVoters >= totalFunders/2, "Min 50% votes are required");
+        require(request.completed != true, "Request completed");
+        require(request.amount <= address(this).balance, "insufficient balance");
+        request.receiver.transfer(request.amount);
+        request.completed = true;
     }
 
 }
