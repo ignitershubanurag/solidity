@@ -14,14 +14,24 @@ can start voting for funders to spend money, min should be greater than 50%
 contract CrowdFunding {
 
     // need to check how mapping of address can be payable type
-    mapping(address => uint)  funders;
+    mapping(address => uint)  public funders;
     uint public goalAmount;
+    uint public timestamp;
     uint public minFundAmount;
+    uint public totalFunders;
     address public owner;
-    constructor () {
+
+    // to receive fund
+    uint public requestAmount;
+    address public AmountReceiver;
+    uint public votes;
+    address[] public funderVotes;
+    
+    constructor (uint _goal, uint _time) {
         owner = msg.sender;
-        goalAmount = 10 ether;
-        minFundAmount = 1 ether;
+        goalAmount = _goal;
+        minFundAmount = 1000 wei;
+        timestamp = block.timestamp + _time;
     }
     modifier checkOwner(){
         require(msg.sender == owner);
@@ -29,6 +39,7 @@ contract CrowdFunding {
     }
 
     modifier canFund(){
+        require(timestamp > block.timestamp, "function duration exceeds");
         require(msg.sender != owner, "Owner can notfund");
         require(msg.value >= minFundAmount, "Min amount criteria not match");
         require(address(this).balance < goalAmount, "Goal reached");
@@ -39,8 +50,28 @@ contract CrowdFunding {
         return address(this).balance;
     }
 
+    // length OR keys can not be fetched from mapping
+    // function checkFunders() checkOwner public view returns(uint){
+    //     return funders.length;
+    // }
+
     receive() canFund external payable {
-        funders[msg.sender] = msg.value;
+        if(funders[msg.sender]>0){
+            funders[msg.sender] += msg.value;
+        }else{
+            funders[msg.sender] = msg.value;
+            totalFunders++;
+        }
+    }
+
+    function getRefund() public {
+        require(timestamp < block.timestamp, "Funding round not over");
+        // require(msg.sender != owner, "Owner can notfund");
+        require(address(this).balance >= goalAmount, "Goal achieved");
+        require(funders[msg.sender] > 0, "you are not funder");
+        payable(msg.sender).transfer(funders[msg.sender]);
+        funders[msg.sender] = 0;
+        totalFunders--;
     }
 
 }
