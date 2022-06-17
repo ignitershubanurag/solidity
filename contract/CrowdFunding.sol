@@ -74,4 +74,38 @@ contract CrowdFunding {
         totalFunders--;
     }
 
+    // for voting
+    struct VotingRequests {
+        string desc;
+        uint amount;
+        address payable receiver;
+        uint noOfVoters;
+        mapping(address => bool) votes;
+        bool completed;
+    }
+
+    mapping (uint => VotingRequests) public allRequest;
+    uint public numRequests;
+
+    function createRequest(string memory _desc, uint _amount, address payable _receiver)
+     public checkOwner {
+         VotingRequests storage request = allRequest[numRequests];
+         numRequests++;
+         request.desc = _desc;
+         request.amount = _amount;
+         request.receiver = _receiver;
+         request.completed = false;
+         request.noOfVoters = 0;
+         
+    }
+
+    function votingRequest(uint _requestNum) public{
+        require(funders[msg.sender] > 0, "you are not funder");
+        VotingRequests storage request = allRequest[_requestNum];
+        require(request.votes[msg.sender] != true, "Already voted");
+        request.votes[msg.sender] = true;
+        request.noOfVoters++;
+        
+    }
+
 }
