@@ -27,6 +27,7 @@ contract ERC20Token is ERC20Interface{
         _symbol = "MFT";
         _decimal = 18;
         _totalSupply = 10000 * 10 ** _decimal;
+        _balances[msg.sender] = _totalSupply;
         emit Transfer(address(0), msg.sender, _totalSupply);
     }
 
