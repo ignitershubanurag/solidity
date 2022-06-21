@@ -4,7 +4,7 @@ pragma solidity >0.8.11;
 
 interface ERC20Interface {
     // optional
-    function name() external view returns (string calldata);
+    function name() external view returns (string memory);
     function symbol() external view returns (string memory);
     function decimals() external view returns (uint8);
 
