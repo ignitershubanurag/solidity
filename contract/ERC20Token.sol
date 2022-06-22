@@ -76,6 +76,7 @@ contract ERC20Token is ERC20Interface{
     function allowance(address _owner, address _spender) public view override returns (uint256 remaining){
         return _allowed[_owner][_spender];
     }
+    
 
     function increaseAllowance(address _spender, uint256 _value) public returns(bool success){
         require(_spender != address(0));
